@@ -9,8 +9,9 @@
    // Middleware pour CORS - configuration pour accepter toutes les origines en production
    app.use(cors({
      origin: process.env.NODE_ENV === 'production' 
-       ? '*' // Accepte toutes les origines en production   //
-       : ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:3000']
+       ? 'https://dash-git-crea-yyyanys-projects.vercel.app' // URL de votre frontend
+       : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'], // URLs pour le développement local
+     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'] // Ajoutez les méthodes nécessaires
    }));
 
    // Middleware pour analyser le corps des requêtes JSON
@@ -110,3 +111,9 @@
 
    // Exportation pour Vercel
    module.exports = app;
+
+   app.use((req, res, next) => {
+     res.header("Access-Control-Allow-Origin", "https://dash-git-crea-yyyanys-projects.vercel.app");
+     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+     next();
+   });
