@@ -1,0 +1,10 @@
+{
+  "projectId": "prj_yourProjectId",
+  "orgId": "team_yourTeamId",
+  "settings": {
+    "framework": "create-react-app",
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": "Board/Front"
+  }
+} 
