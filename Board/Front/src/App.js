@@ -19,10 +19,22 @@ function App() {
   const recupererTaches = async () => {
     try {
       setChargement(true);
-      const reponse = await fetch(`${API_URL}/api/taches`);
+      // Ajout des en-têtes spécifiques pour tenter de contourner CORS
+      const reponse = await fetch(`${API_URL}/api/taches`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        // Utiliser mode: 'cors' explicitement
+        mode: 'cors',
+        credentials: 'omit'
+      });
+      
       if (!reponse.ok) {
         throw new Error(`Erreur HTTP: ${reponse.status}`);
       }
+      
       const donnees = await reponse.json();
       setTaches(donnees);
       setErreur(null);
@@ -47,7 +59,10 @@ function App() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
+        mode: 'cors',
+        credentials: 'omit',
         body: JSON.stringify(nouvelleTache),
       });
 
@@ -69,6 +84,12 @@ function App() {
     try {
       const reponse = await fetch(`${API_URL}/api/taches/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        mode: 'cors',
+        credentials: 'omit'
       });
 
       if (!reponse.ok) {

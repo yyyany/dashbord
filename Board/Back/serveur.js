@@ -1,30 +1,30 @@
    // server.js
    const express = require('express');
    const mongoose = require('mongoose');
-   const cors = require('cors');
+   // Nous n'utiliserons pas le package cors mais notre propre middleware
+   // const cors = require('cors');
 
    const app = express();
    const PORT = process.env.PORT || 3000;
 
-   // Middleware pour les en-têtes CORS personnalisés (ajouté en premier)
+   // Middleware CORS personnalisé et simplifié
    app.use((req, res, next) => {
-     res.header("Access-Control-Allow-Origin", "*");
-     res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+     // Autoriser toutes les origines
+     res.setHeader('Access-Control-Allow-Origin', '*');
      
-     // Gérer les requêtes OPTIONS préliminaires (preflight)
+     // Autoriser tous les en-têtes demandés par le navigateur
+     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+     
+     // Autoriser toutes les méthodes
+     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+     
+     // Gérer les requêtes OPTIONS préliminaires
      if (req.method === 'OPTIONS') {
        return res.status(200).end();
      }
      
      next();
    });
-
-   // Middleware pour CORS - configuration pour accepter toutes les origines en production
-   app.use(cors({
-     origin: '*', // Permet toutes les origines
-     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'] // Méthodes autorisées
-   }));
 
    // Middleware pour analyser le corps des requêtes JSON
    app.use(express.json());
