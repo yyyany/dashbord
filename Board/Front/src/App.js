@@ -9,14 +9,17 @@ function App() {
 
   // URL de l'API - détection automatique de l'environnement
   const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000/api/taches'
-    : 'https://dashbord-hwfbnj9q6-yyyanys-projects.vercel.app/api/taches';
+    ? 'http://localhost:3000'
+    : 'https://dashbord-git-crea-yyyanys-projects.vercel.app';
+    
+  // Afficher l'URL de l'API dans la console pour vérification
+  console.log('URL API utilisée:', API_URL);
 
   // Fonction pour récupérer toutes les tâches
   const recupererTaches = async () => {
     try {
       setChargement(true);
-      const reponse = await fetch(API_URL);
+      const reponse = await fetch(`${API_URL}/api/taches`);
       if (!reponse.ok) {
         throw new Error(`Erreur HTTP: ${reponse.status}`);
       }
@@ -40,7 +43,7 @@ function App() {
     }
 
     try {
-      const reponse = await fetch(API_URL, {
+      const reponse = await fetch(`${API_URL}/api/taches`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +67,7 @@ function App() {
   // Fonction pour supprimer une tâche
   const supprimerTache = async (id) => {
     try {
-      const reponse = await fetch(`${API_URL}/${id}`, {
+      const reponse = await fetch(`${API_URL}/api/taches/${id}`, {
         method: 'DELETE',
       });
 

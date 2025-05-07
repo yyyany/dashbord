@@ -9,7 +9,7 @@
    // Middleware pour CORS - configuration pour accepter toutes les origines en production
    app.use(cors({
      origin: process.env.NODE_ENV === 'production' 
-       ? '*' // Accepte toutes les origines en production
+       ? '*' // Accepte toutes les origines en production   //
        : ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:3000']
    }));
 

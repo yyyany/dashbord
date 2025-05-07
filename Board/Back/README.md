@@ -63,5 +63,5 @@ npm run dev
 
 Après le déploiement, n'oubliez pas de mettre à jour l'URL de l'API dans votre frontend pour pointer vers votre backend déployé:
 ```javascript
-const API_URL = 'https://votre-backend-url.vercel.app/api/taches';
+const API_URL = 'https://dashbord-git-crea-yyyanys-projects.vercel.app';
 ``` 
