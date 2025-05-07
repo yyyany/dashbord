@@ -6,11 +6,11 @@
    const app = express();
    const PORT = process.env.PORT || 3000;
 
-   // Middleware pour CORS
+   // Middleware pour CORS - configuration pour accepter toutes les origines en production
    app.use(cors({
      origin: process.env.NODE_ENV === 'production' 
-       ? ['https://votre-frontend-url.vercel.app'] 
-       : ['http://localhost:3001', 'http://localhost:5173']
+       ? '*' // Accepte toutes les origines en production
+       : ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:3000']
    }));
 
    // Middleware pour analyser le corps des requêtes JSON

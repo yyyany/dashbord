@@ -7,8 +7,10 @@ function App() {
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
 
-  // URL de l'API
-  const API_URL = 'http://localhost:3000/api/taches';
+  // URL de l'API - détection automatique de l'environnement
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api/taches'
+    : 'https://dashbord-hwfbnj9q6-yyyanys-projects.vercel.app/api/taches';
 
   // Fonction pour récupérer toutes les tâches
   const recupererTaches = async () => {
