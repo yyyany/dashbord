@@ -7,21 +7,41 @@
    const PORT = process.env.PORT || 3000;
 
    // Middleware pour CORS
-   app.use(cors());
+   app.use(cors({
+     origin: process.env.NODE_ENV === 'production' 
+       ? ['https://votre-frontend-url.vercel.app'] 
+       : ['http://localhost:3001', 'http://localhost:5173']
+   }));
 
    // Middleware pour analyser le corps des requêtes JSON
    app.use(express.json());
 
-   // Remplacez <db_password> par votre mot de passe MongoDB
-   const mongoURI = 'mongodb+srv://skandy:1@cluster0.f0gatij.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+   // Variable pour stocker la connexion MongoDB
+   let cachedDb = null;
 
-   // Connexion à MongoDB
-   mongoose.connect(mongoURI, {
-       useNewUrlParser: true,
-       useUnifiedTopology: true,
-   })
-   .then(() => console.log('Connecté à MongoDB'))
-   .catch(err => console.error('Erreur de connexion à MongoDB:', err));
+   // Fonction pour connecter à MongoDB
+   async function connectToDatabase() {
+     if (cachedDb) {
+       return cachedDb;
+     }
+
+     // URL MongoDB
+     const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://skandy:1@cluster0.f0gatij.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+
+     try {
+       const client = await mongoose.connect(mongoURI, {
+         useNewUrlParser: true,
+         useUnifiedTopology: true,
+       });
+       
+       console.log('Connecté à MongoDB');
+       cachedDb = client;
+       return client;
+     } catch (error) {
+       console.error('Erreur de connexion à MongoDB:', error);
+       throw error;
+     }
+   }
 
    // Définition du modèle de tâche
    const tacheSchema = new mongoose.Schema({
@@ -37,6 +57,7 @@
    // Route pour obtenir toutes les tâches
    app.get('/api/taches', async (req, res) => {
        try {
+           await connectToDatabase();
            const taches = await Tache.find();
            res.json(taches);
        } catch (err) {
@@ -52,6 +73,7 @@
        });
 
        try {
+           await connectToDatabase();
            const nouvelleTache = await tache.save();
            res.status(201).json(nouvelleTache);
        } catch (err) {
@@ -62,6 +84,7 @@
    // Route pour supprimer une tâche
    app.delete('/api/taches/:id', async (req, res) => {
        try {
+           await connectToDatabase();
            const tache = await Tache.findByIdAndDelete(req.params.id);
            if (!tache) {
                return res.status(404).json({ message: 'Tâche non trouvée' });
@@ -72,12 +95,18 @@
        }
    });
 
-   // Exemple de route
+   // Route racine
    app.get('/', (req, res) => {
-       res.send('Bienvenue sur votre serveur Node.js avec MongoDB !');
+       res.send('Bienvenue sur votre API de gestion de tâches !');
    });
 
-   // Démarrer le serveur
-   app.listen(PORT, () => {
-       console.log(`Serveur en cours d'exécution sur http://localhost:${PORT}`);
-   });
+   // Vérification de l'environnement
+   if (process.env.NODE_ENV !== 'production') {
+       // Démarrer le serveur en mode développement
+       app.listen(PORT, () => {
+           console.log(`Serveur en cours d'exécution sur http://localhost:${PORT}`);
+       });
+   }
+
+   // Exportation pour Vercel
+   module.exports = app;
