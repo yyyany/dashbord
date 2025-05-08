@@ -10,7 +10,7 @@ function App() {
   // URL de l'API - détection automatique de l'environnement
   const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000'
-    : 'https://votre-app-railway.up.railway.app'; // Remplacez par votre URL Railway
+    : 'https://dashbord-production.up.railway.app'; // Remplacez par votre URL Railway
     
   // Afficher l'URL de l'API dans la console pour vérification
   console.log('URL API utilisée:', API_URL);
