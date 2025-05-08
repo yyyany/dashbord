@@ -31,9 +31,9 @@
    connectToDatabase()
        .then(() => {
            app.listen(PORT, () => {
-               console.log(`✨ Serveur en cours d'exécution sur le port ${PORT}`);
+               console.log(` Serveur en cours d'exécution sur le port ${PORT}`);
            });
        })
        .catch(err => {
-           console.error('❌ Impossible de démarrer le serveur :', err);
+           console.error(' Impossible de démarrer le serveur :', err);
        });

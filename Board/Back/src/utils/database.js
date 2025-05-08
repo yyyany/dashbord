@@ -23,11 +23,11 @@ async function connectToDatabase() {
             useUnifiedTopology: true,
         });
         
-        console.log('✅ Connecté à MongoDB');
+        console.log(' Connecté à MongoDB');
         cachedDb = client;
         return client;
     } catch (error) {
-        console.error('❌ Erreur de connexion à MongoDB:', error);
+        console.error(' Erreur de connexion à MongoDB:', error);
         throw error;
     }
 }
