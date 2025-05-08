@@ -6,17 +6,12 @@
    const app = express();
    const PORT = process.env.PORT || 3000;
 
-   // Middleware CORS simplifié mais efficace
+   // Middleware CORS simplifié
    app.use(cors({
-     origin: '*', // Permettre toutes les origines pour le moment
+     origin: '*',
      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
    }));
-
-   // Middleware pour OPTIONS preflight
-   app.options('*', (req, res) => {
-     res.status(200).end();
-   });
 
    // Middleware pour analyser le corps des requêtes JSON
    app.use(express.json());
@@ -58,9 +53,11 @@
 
    const Tache = mongoose.model('Tache', tacheSchema);
 
-   // Routes pour les tâches
+   // Routes API
+   const router = express.Router();
+
    // Route pour obtenir toutes les tâches
-   app.get('/api/taches', async (req, res) => {
+   router.get('/taches', async (req, res) => {
        try {
            await connectToDatabase();
            const taches = await Tache.find();
@@ -71,7 +68,7 @@
    });
 
    // Route pour ajouter une tâche
-   app.post('/api/taches', async (req, res) => {
+   router.post('/taches', async (req, res) => {
        const tache = new Tache({
            titre: req.body.titre,
            description: req.body.description
@@ -86,8 +83,8 @@
        }
    });
 
-   // Route pour supprimer une tâche - correction du paramètre id
-   app.delete('/api/taches/:id([0-9a-fA-F]{24})', async (req, res) => {
+   // Route pour supprimer une tâche
+   router.delete('/taches/:id', async (req, res) => {
        try {
            await connectToDatabase();
            const tache = await Tache.findByIdAndDelete(req.params.id);
@@ -100,8 +97,8 @@
        }
    });
 
-   // Route pour mettre à jour une tâche - correction du paramètre id
-   app.put('/api/taches/:id([0-9a-fA-F]{24})', async (req, res) => {
+   // Route pour mettre à jour une tâche
+   router.put('/taches/:id', async (req, res) => {
        try {
            await connectToDatabase();
            const tache = await Tache.findByIdAndUpdate(
@@ -120,6 +117,9 @@
        }
    });
 
+   // Montage du routeur API
+   app.use('/api', router);
+
    // Route racine
    app.get('/', (req, res) => {
        res.json({
@@ -127,14 +127,13 @@
            endpoints: {
                'GET /api/taches': 'Récupérer toutes les tâches',
                'POST /api/taches': 'Créer une nouvelle tâche',
-               'GET /api/taches/:id': 'Récupérer une tâche spécifique',
-               'PUT /api/taches/:id': 'Mettre à jour une tâche',
-               'DELETE /api/taches/:id': 'Supprimer une tâche'
+               'DELETE /api/taches/:id': 'Supprimer une tâche',
+               'PUT /api/taches/:id': 'Mettre à jour une tâche'
            }
        });
    });
 
-   // Connexion à MongoDB et démarrage du serveur
+   // Démarrage du serveur
    connectToDatabase()
        .then(() => {
            app.listen(PORT, () => {
