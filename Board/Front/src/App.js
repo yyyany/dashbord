@@ -1,188 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 import './App.css';
 
 function App() {
-  const [taches, setTaches] = useState([]);
-  const [nouvelleTache, setNouvelleTache] = useState({ titre: '', description: '' });
-  const [chargement, setChargement] = useState(true);
-  const [erreur, setErreur] = useState(null);
-
-  // URL de l'API - détection automatique de l'environnement
-  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000'
-    : 'https://dashbord-production.up.railway.app'; // Remplacez par votre URL Railway
-    
-  // Afficher l'URL de l'API dans la console pour vérification
-  console.log('URL API utilisée:', API_URL);
-
-  // Fonction pour récupérer toutes les tâches
-  const recupererTaches = async () => {
-    try {
-      setChargement(true);
-      // Ajout des en-têtes spécifiques pour tenter de contourner CORS
-      const reponse = await fetch(`${API_URL}/api/taches`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        }
-      });
-      
-      if (!reponse.ok) {
-        throw new Error(`Erreur HTTP: ${reponse.status}`);
-      }
-      
-      const donnees = await reponse.json();
-      setTaches(donnees);
-      setErreur(null);
-    } catch (err) {
-      setErreur(`Erreur lors de la récupération des tâches: ${err.message}`);
-      console.error('Erreur:', err);
-    } finally {
-      setChargement(false);
-    }
+  // Fonction pour vérifier si l'utilisateur est authentifié
+  const isAuthenticated = () => {
+    return localStorage.getItem('isAuthenticated') === 'true';
   };
 
-  // Fonction pour ajouter une tâche
-  const ajouterTache = async (e) => {
-    e.preventDefault();
-    if (!nouvelleTache.titre.trim()) {
-      alert('Le titre est obligatoire');
-      return;
+  // Composant pour les routes protégées
+  const ProtectedRoute = ({ children }) => {
+    if (!isAuthenticated()) {
+      return <Navigate to="/login" />;
     }
-
-    try {
-      const reponse = await fetch(`${API_URL}/api/taches`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify(nouvelleTache),
-      });
-
-      if (!reponse.ok) {
-        throw new Error(`Erreur HTTP: ${reponse.status}`);
-      }
-
-      const tacheAjoutee = await reponse.json();
-      setTaches([...taches, tacheAjoutee]);
-      setNouvelleTache({ titre: '', description: '' });
-    } catch (err) {
-      setErreur(`Erreur lors de l'ajout de la tâche: ${err.message}`);
-      console.error('Erreur:', err);
-    }
-  };
-
-  // Fonction pour supprimer une tâche
-  const supprimerTache = async (id) => {
-    try {
-      const reponse = await fetch(`${API_URL}/api/taches/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        mode: 'cors',
-        credentials: 'omit'
-      });
-
-      if (!reponse.ok) {
-        throw new Error(`Erreur HTTP: ${reponse.status}`);
-      }
-
-      setTaches(taches.filter(tache => tache._id !== id));
-    } catch (err) {
-      setErreur(`Erreur lors de la suppression de la tâche: ${err.message}`);
-      console.error('Erreur:', err);
-    }
-  };
-
-  // Récupérer les tâches au chargement du composant
-  useEffect(() => {
-    recupererTaches();
-  }, []);
-
-  // Gérer les changements dans le formulaire
-  const gererChangement = (e) => {
-    const { name, value } = e.target;
-    setNouvelleTache(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    return children;
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Gestionnaire de Tâches</h1>
-      </header>
-
-      <div className="container">
-        <section className="ajout-tache">
-          <h2>Ajouter une nouvelle tâche</h2>
-          <form onSubmit={ajouterTache}>
-            <div className="form-group">
-              <label htmlFor="titre">Titre:</label>
-              <input
-                type="text"
-                id="titre"
-                name="titre"
-                value={nouvelleTache.titre}
-                onChange={gererChangement}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="description">Description:</label>
-              <textarea
-                id="description"
-                name="description"
-                value={nouvelleTache.description}
-                onChange={gererChangement}
-              ></textarea>
-            </div>
-
-            <button type="submit" className="btn-ajouter">Ajouter la tâche</button>
-          </form>
-        </section>
-
-        <section className="liste-taches">
-          <h2>Mes tâches</h2>
-          
-          {erreur && <p className="erreur">{erreur}</p>}
-          
-          {chargement ? (
-            <p>Chargement des tâches...</p>
-          ) : (
-            <ul>
-              {taches.length > 0 ? (
-                taches.map(tache => (
-                  <li key={tache._id} className="tache-item">
-                    <div className="tache-info">
-                      <h3>{tache.titre}</h3>
-                      <p>{tache.description}</p>
-                      <p className="date">Créée le: {new Date(tache.dateCreation).toLocaleString()}</p>
-                    </div>
-                    <button 
-                      className="btn-supprimer" 
-                      onClick={() => supprimerTache(tache._id)}
-                    >
-                      Supprimer
-                    </button>
-                  </li>
-                ))
-              ) : (
-                <p>Aucune tâche trouvée. Ajoutez-en une !</p>
-              )}
-            </ul>
-          )}
-        </section>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/" element={<Navigate to={isAuthenticated() ? "/dashboard" : "/login"} />} />
+      </Routes>
+    </Router>
   );
 }
 
