@@ -1,29 +1,21 @@
    // server.js
    const express = require('express');
    const mongoose = require('mongoose');
-   // Nous n'utiliserons pas le package cors mais notre propre middleware
-   // const cors = require('cors');
+   const cors = require('cors');
 
    const app = express();
    const PORT = process.env.PORT || 3000;
 
-   // Middleware CORS personnalisé et simplifié
-   app.use((req, res, next) => {
-     // Autoriser toutes les origines
-     res.setHeader('Access-Control-Allow-Origin', '*');
-     
-     // Autoriser tous les en-têtes demandés par le navigateur
-     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-     
-     // Autoriser toutes les méthodes
-     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-     
-     // Gérer les requêtes OPTIONS préliminaires
-     if (req.method === 'OPTIONS') {
-       return res.status(200).end();
-     }
-     
-     next();
+   // Middleware CORS simplifié mais efficace
+   app.use(cors({
+     origin: '*', // Permettre toutes les origines pour le moment
+     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+   }));
+
+   // Middleware pour OPTIONS preflight
+   app.options('*', (req, res) => {
+     res.status(200).end();
    });
 
    // Middleware pour analyser le corps des requêtes JSON
@@ -38,7 +30,7 @@
        return cachedDb;
      }
 
-     // URL MongoDB
+     // URL MongoDB - utilise variable d'environnement en production
      const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://skandy:1@cluster0.f0gatij.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
      try {
@@ -108,18 +100,47 @@
        }
    });
 
-   // Route racine
-   app.get('/', (req, res) => {
-       res.send('Bienvenue sur votre API de gestion de tâches !');
+   // Route pour mettre à jour une tâche
+   app.put('/api/taches/:id', async (req, res) => {
+       try {
+           await connectToDatabase();
+           const tache = await Tache.findByIdAndUpdate(
+               req.params.id,
+               req.body,
+               { new: true, runValidators: true }
+           );
+           
+           if (!tache) {
+               return res.status(404).json({ message: 'Tâche non trouvée' });
+           }
+           
+           res.json(tache);
+       } catch (err) {
+           res.status(400).json({ message: err.message });
+       }
    });
 
-   // Vérification de l'environnement
-   if (process.env.NODE_ENV !== 'production') {
-       // Démarrer le serveur en mode développement
-       app.listen(PORT, () => {
-           console.log(`Serveur en cours d'exécution sur http://localhost:${PORT}`);
+   // Route racine
+   app.get('/', (req, res) => {
+       res.json({
+           message: 'Bienvenue sur l\'API de gestion de tâches',
+           endpoints: {
+               'GET /api/taches': 'Récupérer toutes les tâches',
+               'POST /api/taches': 'Créer une nouvelle tâche',
+               'GET /api/taches/:id': 'Récupérer une tâche spécifique',
+               'PUT /api/taches/:id': 'Mettre à jour une tâche',
+               'DELETE /api/taches/:id': 'Supprimer une tâche'
+           }
        });
-   }
+   });
 
-   // Exportation pour Vercel
-   module.exports = app;
+   // Connexion à MongoDB et démarrage du serveur
+   connectToDatabase()
+       .then(() => {
+           app.listen(PORT, () => {
+               console.log(`Serveur en cours d'exécution sur le port ${PORT}`);
+           });
+       })
+       .catch(err => {
+           console.error('Impossible de démarrer le serveur :', err);
+       });
