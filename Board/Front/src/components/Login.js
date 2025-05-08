@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
 
 const Login = () => {
@@ -92,7 +92,12 @@ const Login = () => {
           </form>
           
           <div className="login-links">
-            <a href="#" className="forgot-password">Mot de passe oublié ?</a>
+            <div className="login-links-row">
+              <a href="#" className="forgot-password">Mot de passe oublié ?</a>
+            </div>
+            <div className="login-links-row register-prompt">
+              <p>Pas encore de compte ? <Link to="/register" className="register-link">Inscrivez-vous</Link></p>
+            </div>
           </div>
         </div>
       </div>
