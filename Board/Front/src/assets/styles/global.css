@@ -1,0 +1,127 @@
+/* Styles globaux de l'application */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap');
+
+:root {
+  /* Couleurs primaires */
+  --primary: #6A0DAD;
+  --primary-light: #9747FF;
+  --primary-dark: #4B0082;
+  
+  /* Couleurs secondaires */
+  --secondary: #F8F9FA;
+  --secondary-dark: #343A40;
+  
+  /* Couleur d'accent */
+  --accent: #D1C4E9;
+  
+  /* Couleurs de fond */
+  --bg-main: #FFFFFF;
+  --bg-dark: #121212;
+  --bg-paper: #F5F5F5;
+  
+  /* Couleurs de texte */
+  --text-primary: #212529;
+  --text-secondary: #6C757D;
+  --text-light: #F8F9FA;
+  
+  /* Couleurs utilitaires */
+  --error: #DC3545;
+  --warning: #FFC107;
+  --success: #28A745;
+  --info: #17A2B8;
+  
+  /* Ombres */
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.2);
+  
+  /* Transitions */
+  --transition-default: 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', 'Roboto', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: var(--transition-default);
+}
+
+a:hover {
+  color: var(--primary-light);
+}
+
+button {
+  cursor: pointer;
+  font-family: 'Poppins', 'Roboto', sans-serif;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 500;
+  transition: var(--transition-default);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--secondary);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-paper);
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.card {
+  background-color: var(--bg-main);
+  border-radius: 8px;
+  box-shadow: var(--shadow-light);
+  padding: 16px;
+  transition: var(--transition-default);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-medium);
+}
+
+/* Classes utilitaires */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-light { color: var(--text-light); }
+.bg-primary { background-color: var(--primary); }
+.bg-light { background-color: var(--bg-paper); }
+.p-1 { padding: 4px; }
+.p-2 { padding: 8px; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.m-1 { margin: 4px; }
+.m-2 { margin: 8px; }
+.m-3 { margin: 12px; }
+.m-4 { margin: 16px; } 

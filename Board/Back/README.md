@@ -1,3 +1,35 @@
+# Gestionnaire de Tâches
+
+## Description
+Application de gestion de tâches utilisant Express et MongoDB, déployée sur Railway.
+
+## Installation
+1. Clonez le dépôt
+   ```bash
+   git clone https://votre-repo.git
+   ```
+2. Installez les dépendances
+   ```bash
+   cd Board/Back
+   npm install
+   ```
+
+## Démarrage
+Pour démarrer le serveur en mode développement :
+```bash
+npm run dev
+```
+
+## API
+### Endpoints
+- `GET /api/taches` : Récupérer toutes les tâches
+- `POST /api/taches` : Créer une nouvelle tâche
+- `DELETE /api/taches/:id` : Supprimer une tâche
+- `PUT /api/taches/:id` : Mettre à jour une tâche
+
+## Déploiement
+L'application est déployée sur Railway. L'URL de l'API est :
+
 # Backend d'Application de Tâches
 
 Ce backend fournit une API RESTful pour gérer une liste de tâches.
@@ -63,5 +95,5 @@ npm run dev
 
 Après le déploiement, n'oubliez pas de mettre à jour l'URL de l'API dans votre frontend pour pointer vers votre backend déployé:
 ```javascript
-const API_URL = 'https://dashbord-git-crea-yyyanys-projects.vercel.app';
+const API_URL = 'https://dashbord-production.up.railway.app';
 ``` 

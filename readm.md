@@ -140,7 +140,7 @@ Le projet sera **déployé sur un serveur Ubuntu (AWS)**, conçu avec une **stru
 
 * Créer layout responsive 16:9 pour ton 2e écran
 * Développer un système de widgets (chaque bloc = composant)
-* Gérer l’état global si besoin (pour user, préférences, thèmes)
+* Gérer l'état global si besoin (pour user, préférences, thèmes)
 
 ### 3. Dev du backend (Express)
 
@@ -158,7 +158,7 @@ Le projet sera **déployé sur un serveur Ubuntu (AWS)**, conçu avec une **stru
 
 * Créer route /login (mot de passe hashé avec bcrypt)
 * Auth JWT avec expiration
-* Middleware pour protéger l’API
+* Middleware pour protéger l'API
 
 ### 6. Déploiement
 

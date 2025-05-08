@@ -39,32 +39,34 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
+# Gestionnaire de Tâches
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Description
+Application de gestion de tâches utilisant Express et MongoDB, déployée sur Railway.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Installation
+1. Clonez le dépôt
+   ```bash
+   git clone https://votre-repo.git
+   ```
+2. Installez les dépendances
+   ```bash
+   cd Board/Back
+   npm install
+   ```
 
-### Code Splitting
+## Démarrage
+Pour démarrer le serveur en mode développement :
+```bash
+npm run dev
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## API
+### Endpoints
+- `GET /api/taches` : Récupérer toutes les tâches
+- `POST /api/taches` : Créer une nouvelle tâche
+- `DELETE /api/taches/:id` : Supprimer une tâche
+- `PUT /api/taches/:id` : Mettre à jour une tâche
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Déploiement
+L'application est déployée sur Railway. L'URL de l'API est :
