@@ -86,8 +86,8 @@
        }
    });
 
-   // Route pour supprimer une tâche
-   app.delete('/api/taches/:id', async (req, res) => {
+   // Route pour supprimer une tâche - correction du paramètre id
+   app.delete('/api/taches/:id([0-9a-fA-F]{24})', async (req, res) => {
        try {
            await connectToDatabase();
            const tache = await Tache.findByIdAndDelete(req.params.id);
@@ -100,8 +100,8 @@
        }
    });
 
-   // Route pour mettre à jour une tâche
-   app.put('/api/taches/:id', async (req, res) => {
+   // Route pour mettre à jour une tâche - correction du paramètre id
+   app.put('/api/taches/:id([0-9a-fA-F]{24})', async (req, res) => {
        try {
            await connectToDatabase();
            const tache = await Tache.findByIdAndUpdate(
