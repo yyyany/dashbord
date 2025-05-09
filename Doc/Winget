@@ -1,0 +1,146 @@
+# Spécification technique – Système de Widgets dans le Dashboard
+
+## 🧩 Objectif général
+
+Mettre en place un **système de widgets personnalisables** dans un Dashboard utilisateur. Chaque utilisateur pourra :
+
+* Ajouter un ou plusieurs widgets selon ses besoins
+* Retirer les widgets qu’il ne veut plus voir
+* Organiser visuellement les widgets dans l’interface
+* Conserver la disposition via un système de sauvegarde lié à son compte
+
+---
+
+## 🧱 Structure technique (conceptuelle)
+
+### 1. Base de données (MongoDB)
+
+Chaque utilisateur disposera d’un objet `dashboard` dans sa collection `users`, contenant :
+
+* Une liste de widgets actifs
+* Les paramètres propres à chaque widget (taille, position, préférences)
+* Un identifiant unique pour chaque widget (utile pour le drag/drop)
+
+### 2. Frontend (React)
+
+L’interface Dashboard affiche dynamiquement les widgets actifs d’un utilisateur en se basant sur la configuration récupérée depuis la base.
+
+* Les widgets sont chargés dans une grille flexible
+* Une barre latérale ou un menu permet d’ajouter/enlever des widgets
+* Un système de drag & drop permet de repositionner les widgets (dans les versions futures si trop complexe au départ)
+
+---
+
+## 🧰 Widgets proposés (version 1)
+
+### 1. ✅ To-do list
+
+* **Fonctionnalités** :
+
+  * Ajouter / supprimer une tâche
+  * Marquer comme terminée
+  * Réorganisation simple
+* **Design** :
+
+  * Zone blanche avec en-tête "Mes tâches"
+  * Liste verticale, champs d’entrée en bas
+  * Taille fixe (ex. 3 colonnes x 2 lignes)
+
+### 2. 🌦️ Météo
+
+* **Fonctionnalités** :
+
+  * Choix manuel de ville
+  * Affichage : température, conditions, icône météo
+* **Design** :
+
+  * Carte compacte avec icône animée (ensoleillé, pluie…)
+  * Taille moyenne (2 colonnes x 2 lignes)
+
+### 3. 🗒️ Notes rapides
+
+* **Fonctionnalités** :
+
+  * Édition instantanée (autosave)
+  * Suppression d’un bloc
+* **Design** :
+
+  * Zone texte sans bordures superflues
+  * Taille ajustable (2 à 4 colonnes)
+
+### 4. 📅 Compte à rebours
+
+* **Fonctionnalités** :
+
+  * Nom de l’événement
+  * Date de fin
+  * Affichage dynamique : “J-10”, “2h restantes”…
+* **Design** :
+
+  * Style carte foncée avec texte contrasté
+  * Taille : petit ou moyen (1x2 ou 2x2)
+
+### 5. 💡 Citation du jour
+
+* **Fonctionnalités** :
+
+  * Sourcing aléatoire via liste ou API
+  * Option pour liker / enregistrer une citation
+* **Design** :
+
+  * Typographie stylée, fond doux
+  * Format carte horizontale (4 colonnes x 1 ligne)
+
+---
+
+## 🧭 Comportement général des widgets
+
+### Ajouter un widget
+
+* L'utilisateur clique sur un bouton "Ajouter un widget"
+* Une modale ou un menu latéral s’ouvre avec la liste des widgets disponibles
+* Lorsqu’il clique sur un widget, celui-ci est :
+
+  * Ajouté à son dashboard avec une position par défaut
+  * Enregistré dans sa configuration personnelle
+
+### Supprimer un widget
+
+* Chaque widget comporte un bouton (ex. icône poubelle) visible au survol
+* En cliquant dessus :
+
+  * Le widget est supprimé de l’interface
+  * Mise à jour de la base de données
+
+### (Futur) Réorganisation
+
+* Glisser-déposer des widgets dans la grille
+* Sauvegarde automatique de la position via événement `onDragEnd`
+* Système basé sur des coordonnées `x`, `y`, `w`, `h` pour chaque widget
+
+---
+
+## 💾 Sauvegarde et récupération
+
+* À chaque modification (ajout, retrait, position), la configuration complète du Dashboard est synchronisée côté serveur
+* Lors du chargement de la page :
+
+  * Authentification → récupération du `dashboard` de l’utilisateur
+  * Affichage dynamique des widgets selon leurs positions
+
+---
+
+## 🎨 Design UI
+
+* Grille responsive (nombre de colonnes variable selon écran)
+* Widgets sous forme de **cartes** avec ombres douces et coins arrondis
+* Palette claire avec accents personnalisables
+* Icônes sobres, typographie lisible (ex. Inter, Roboto)
+
+---
+
+## 🔐 Sécurité
+
+* Chaque modification est associée à l’utilisateur authentifié
+* Aucun widget n’est modifiable par un autre utilisateur
+* Validation des paramètres d’entrée (taille, position, type de widget)

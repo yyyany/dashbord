@@ -1,0 +1,145 @@
+/* Style du layout principal */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: #F5F8FA;
+  will-change: padding-left;
+  padding-top: 70px; /* Ajustez cette valeur selon la hauteur de votre header */
+}
+
+.dark-mode .layout {
+  background-color: #121212;
+}
+
+.layout-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  transition: margin-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: margin-left;
+}
+
+.main-content {
+  flex: 1;
+  padding: 1.5rem;
+  transition: padding 0.4s ease;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+/* Ajustements pour le sidebar expanded/collapsed */
+.sidebar-expanded .layout-content {
+  margin-left: 280px; /* Largeur du sidebar en état étendu */
+}
+
+.sidebar-collapsed .layout-content {
+  margin-left: 0; /* Sidebar complètement masquée */
+}
+
+/* Overlay pour le sidebar mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 900;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  will-change: opacity, visibility;
+}
+
+.sidebar-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Animation des sections de contenu */
+.section-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.section-animate.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animation de fondu pour les éléments */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation du layout lors du changement d'état de la sidebar */
+@keyframes layoutExpand {
+  from {
+    margin-left: 0;
+  }
+  to {
+    margin-left: 280px;
+  }
+}
+
+@keyframes layoutCollapse {
+  from {
+    margin-left: 280px;
+  }
+  to {
+    margin-left: 0;
+  }
+}
+
+.sidebar-expanded .layout-content {
+  animation: layoutExpand 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.sidebar-collapsed .layout-content {
+  animation: layoutCollapse 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 1.25rem;
+  }
+  
+  .sidebar-expanded .layout-content {
+    margin-left: 0;
+  }
+  
+  .sidebar-expanded .layout-content,
+  .sidebar-collapsed .layout-content {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout-content {
+    margin-left: 0 !important;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.75rem;
+  }
+} 
