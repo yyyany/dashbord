@@ -257,4 +257,61 @@
     flex-direction: column;
     gap: 0;
   }
+}
+
+/* Styles pour l'indicateur de force du mot de passe */
+.password-strength-meter {
+  margin-top: 8px;
+}
+
+.strength-bar {
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  margin-bottom: 5px;
+}
+
+.strength-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.strength-0 .strength-bar-fill, .strength-1 .strength-bar-fill {
+  background-color: #f44336; /* Rouge pour très faible */
+}
+
+.strength-2 .strength-bar-fill {
+  background-color: #ff9800; /* Orange pour faible */
+}
+
+.strength-3 .strength-bar-fill {
+  background-color: #ffeb3b; /* Jaune pour moyen */
+}
+
+.strength-4 .strength-bar-fill {
+  background-color: #4caf50; /* Vert pour fort */
+}
+
+.strength-5 .strength-bar-fill {
+  background-color: #2e7d32; /* Vert foncé pour très fort */
+}
+
+.strength-text {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Styles pour la validation des formulaires */
+.input-error {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+}
+
+.validation-error {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-in-out;
 } 

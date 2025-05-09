@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import apiService from '../../services/api.service';
 import './Register.css';
-import apiService from '../services/api.service';
 
 const Register = () => {
   const [userData, setUserData] = useState({
@@ -14,6 +14,12 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, message: '' });
+  const [validation, setValidation] = useState({
+    email: { valid: true, message: '' },
+    password: { valid: true, message: '' },
+    confirmPassword: { valid: true, message: '' }
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,12 +30,109 @@ const Register = () => {
     }
   }, []);
 
+  const checkPasswordStrength = (password) => {
+    let score = 0;
+    let message = '';
+
+    if (password.length >= 8) score += 1;
+    if (/[A-Z]/.test(password)) score += 1;
+    if (/[a-z]/.test(password)) score += 1;
+    if (/[0-9]/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+
+    switch (score) {
+      case 0:
+      case 1:
+        message = 'Très faible';
+        break;
+      case 2:
+        message = 'Faible';
+        break;
+      case 3:
+        message = 'Moyen';
+        break;
+      case 4:
+        message = 'Fort';
+        break;
+      case 5:
+        message = 'Très fort';
+        break;
+      default:
+        message = '';
+    }
+
+    return { score, message };
+  };
+
+  const validateEmail = (email) => {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData(prev => ({
       ...prev,
       [name]: value
     }));
+
+    // Validation en temps réel
+    if (name === 'email') {
+      if (!value) {
+        setValidation(prev => ({
+          ...prev,
+          email: { valid: true, message: '' }
+        }));
+      } else if (!validateEmail(value)) {
+        setValidation(prev => ({
+          ...prev,
+          email: { valid: false, message: 'Format d\'email invalide' }
+        }));
+      } else {
+        setValidation(prev => ({
+          ...prev,
+          email: { valid: true, message: '' }
+        }));
+      }
+    } else if (name === 'password') {
+      setPasswordStrength(checkPasswordStrength(value));
+      if (value.length < 6) {
+        setValidation(prev => ({
+          ...prev,
+          password: { valid: false, message: 'Le mot de passe doit contenir au moins 6 caractères' }
+        }));
+      } else {
+        setValidation(prev => ({
+          ...prev,
+          password: { valid: true, message: '' }
+        }));
+      }
+      
+      // Vérifier la confirmation du mot de passe
+      if (userData.confirmPassword && value !== userData.confirmPassword) {
+        setValidation(prev => ({
+          ...prev,
+          confirmPassword: { valid: false, message: 'Les mots de passe ne correspondent pas' }
+        }));
+      } else if (userData.confirmPassword) {
+        setValidation(prev => ({
+          ...prev,
+          confirmPassword: { valid: true, message: '' }
+        }));
+      }
+    } else if (name === 'confirmPassword') {
+      if (value !== userData.password) {
+        setValidation(prev => ({
+          ...prev,
+          confirmPassword: { valid: false, message: 'Les mots de passe ne correspondent pas' }
+        }));
+      } else {
+        setValidation(prev => ({
+          ...prev,
+          confirmPassword: { valid: true, message: '' }
+        }));
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -132,9 +235,12 @@ const Register = () => {
                 onChange={handleChange}
                 required
                 placeholder="exemple@domaine.com"
-                className="register-input"
+                className={`register-input ${!validation.email.valid ? 'input-error' : ''}`}
                 disabled={isLoading}
               />
+              {!validation.email.valid && (
+                <div className="validation-error">{validation.email.message}</div>
+              )}
             </div>
             
             <div className="form-group">
@@ -147,9 +253,23 @@ const Register = () => {
                 onChange={handleChange}
                 required
                 placeholder="••••••••"
-                className="register-input"
+                className={`register-input ${!validation.password.valid ? 'input-error' : ''}`}
                 disabled={isLoading}
               />
+              {!validation.password.valid && (
+                <div className="validation-error">{validation.password.message}</div>
+              )}
+              {userData.password && (
+                <div className={`password-strength-meter strength-${passwordStrength.score}`}>
+                  <div className="strength-bar">
+                    <div 
+                      className="strength-bar-fill" 
+                      style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                    ></div>
+                  </div>
+                  <div className="strength-text">{passwordStrength.message}</div>
+                </div>
+              )}
             </div>
             
             <div className="form-group">
@@ -162,9 +282,12 @@ const Register = () => {
                 onChange={handleChange}
                 required
                 placeholder="••••••••"
-                className="register-input"
+                className={`register-input ${!validation.confirmPassword.valid ? 'input-error' : ''}`}
                 disabled={isLoading}
               />
+              {!validation.confirmPassword.valid && (
+                <div className="validation-error">{validation.confirmPassword.message}</div>
+              )}
             </div>
             
             <button 

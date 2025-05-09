@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import apiService from '../../services/api.service';
 import './Login.css';
-import apiService from '../services/api.service';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockTimer, setBlockTimer] = useState(0);
+  const timerRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,7 +28,52 @@ const Login = () => {
     if (container) {
       container.classList.add('active');
     }
+
+    // Récupérer le nombre de tentatives précédentes
+    const attempts = parseInt(localStorage.getItem('loginAttempts') || '0');
+    const lastAttemptTime = parseInt(localStorage.getItem('lastAttemptTime') || '0');
+    const blockUntil = parseInt(localStorage.getItem('blockUntil') || '0');
+    
+    // Vérifier si le blocage est toujours actif
+    const now = Date.now();
+    if (blockUntil > now) {
+      setIsBlocked(true);
+      const remainingTime = Math.ceil((blockUntil - now) / 1000);
+      setBlockTimer(remainingTime);
+      startBlockTimer(remainingTime);
+    } else if (now - lastAttemptTime > 30 * 60 * 1000) { // 30 minutes
+      // Réinitialiser les tentatives après 30 minutes d'inactivité
+      localStorage.setItem('loginAttempts', '0');
+      setLoginAttempts(0);
+    } else {
+      setLoginAttempts(attempts);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, [location]);
+
+  const startBlockTimer = (seconds) => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    
+    setBlockTimer(seconds);
+    
+    timerRef.current = setInterval(() => {
+      setBlockTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          setIsBlocked(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,6 +85,13 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Vérifier si l'utilisateur est bloqué
+    if (isBlocked) {
+      setError(`Trop de tentatives échouées. Veuillez réessayer dans ${blockTimer} secondes.`);
+      return;
+    }
+    
     setIsLoading(true);
     setError('');
 
@@ -48,16 +104,39 @@ const Login = () => {
 
       // Si la connexion réussit, naviguer vers le dashboard
       if (response.success) {
+        // Réinitialiser les tentatives de connexion
+        localStorage.setItem('loginAttempts', '0');
+        setLoginAttempts(0);
         navigate('/dashboard');
       } else {
         // Si la réponse est un succès mais que le backend indique une erreur
+        handleLoginFailure();
         setError(response.message || 'Échec de connexion');
       }
     } catch (error) {
       // Gérer les erreurs d'authentification
+      handleLoginFailure();
       setError(error.message || 'Email ou mot de passe incorrect');
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  const handleLoginFailure = () => {
+    const attempts = loginAttempts + 1;
+    setLoginAttempts(attempts);
+    localStorage.setItem('loginAttempts', attempts.toString());
+    localStorage.setItem('lastAttemptTime', Date.now().toString());
+    
+    // Bloquer l'utilisateur après 5 tentatives échouées
+    if (attempts >= 5) {
+      // Bloquer pendant 3 minutes (180 secondes)
+      const blockDuration = 180 * 1000; // 3 minutes en millisecondes
+      const blockUntil = Date.now() + blockDuration;
+      localStorage.setItem('blockUntil', blockUntil.toString());
+      
+      setIsBlocked(true);
+      startBlockTimer(180);
     }
   };
 
@@ -71,6 +150,11 @@ const Login = () => {
           <p className="login-subtitle">Connectez-vous pour accéder à votre espace personnel</p>
           
           {error && <div className="login-error">{error}</div>}
+          {isBlocked && (
+            <div className="login-blocked">
+              Trop de tentatives échouées. Veuillez réessayer dans {blockTimer} secondes.
+            </div>
+          )}
           
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">
@@ -84,6 +168,7 @@ const Login = () => {
                 required
                 placeholder="exemple@domaine.com"
                 className="login-input"
+                disabled={isLoading || isBlocked}
               />
             </div>
             
@@ -98,13 +183,14 @@ const Login = () => {
                 required
                 placeholder="••••••••"
                 className="login-input"
+                disabled={isLoading || isBlocked}
               />
             </div>
             
             <button 
               type="submit" 
               className={`login-button ${isLoading ? 'loading' : ''}`}
-              disabled={isLoading}
+              disabled={isLoading || isBlocked}
             >
               {isLoading ? (
                 <div className="spinner"></div>
