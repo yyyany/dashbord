@@ -28,18 +28,7 @@ const Dashboard = () => {
   
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
-        <div className="welcome-section">
-          <h1>Bonjour, <span className="highlight">Utilisateur</span> 👋</h1>
-          <p className="date-today">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-        </div>
-        <div className="actions-section">
-          <button className="btn btn-primary">
-            <span className="material-icons">add</span>
-            Nouvelle tâche
-          </button>
-        </div>
-      </header>
+     
       
       <section className="dashboard-section visible">
         <div className="section-header">

@@ -162,16 +162,6 @@ const Sidebar = ({ isExpanded, toggleSidebar, darkMode }) => {
             <div className="logo">D</div>
             <span className="logo-text">Dashboard</span>
           </div>
-          <button 
-            className="toggle-btn" 
-            onClick={toggleSidebar}
-            title={isExpanded ? "Fermer le menu" : "Ouvrir le menu"}
-            aria-label={isExpanded ? "Fermer le menu" : "Ouvrir le menu"}
-          >
-            <span className="material-icons">
-              {isExpanded ? 'close' : 'menu'}
-            </span>
-          </button>
         </div>
         
         <div className="sidebar-content">
