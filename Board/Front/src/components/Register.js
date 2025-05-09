@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Register.css';
+import apiService from '../services/api.service';
 
 const Register = () => {
   const [userData, setUserData] = useState({
@@ -12,6 +13,7 @@ const Register = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,21 +35,46 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Réinitialiser les états
+    setError('');
+    setSuccess('');
+    
     // Vérification des mots de passe
     if (userData.password !== userData.confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
       return;
     }
     
+    // Vérification de la longueur du mot de passe
+    if (userData.password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères');
+      return;
+    }
+    
     setIsLoading(true);
-    setError('');
 
-    // Simuler une requête d'inscription (à remplacer par une vraie API plus tard)
-    setTimeout(() => {
+    try {
+      // Envoyer les données au serveur
+      const response = await apiService.register({
+        nom: userData.nom,
+        prenom: userData.prenom,
+        email: userData.email,
+        password: userData.password
+      });
+
+      // En cas de succès
+      setSuccess('Compte créé avec succès ! Redirection vers la page de connexion...');
+      
+      // Rediriger vers la page de connexion après 2 secondes
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    } catch (error) {
+      console.error('Erreur lors de l\'inscription:', error);
+      setError(error.message || 'Une erreur est survenue lors de l\'inscription');
+    } finally {
       setIsLoading(false);
-      // Rediriger vers la page de connexion après une inscription réussie
-      navigate('/login');
-    }, 1500);
+    }
   };
 
   return (
@@ -60,6 +87,7 @@ const Register = () => {
           <p className="register-subtitle">Rejoignez-nous pour accéder à votre espace personnel</p>
           
           {error && <div className="register-error">{error}</div>}
+          {success && <div className="register-success">{success}</div>}
           
           <form onSubmit={handleSubmit} className="register-form">
             <div className="form-row">
@@ -74,6 +102,7 @@ const Register = () => {
                   required
                   placeholder="Votre nom"
                   className="register-input"
+                  disabled={isLoading}
                 />
               </div>
               
@@ -88,6 +117,7 @@ const Register = () => {
                   required
                   placeholder="Votre prénom"
                   className="register-input"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -103,6 +133,7 @@ const Register = () => {
                 required
                 placeholder="exemple@domaine.com"
                 className="register-input"
+                disabled={isLoading}
               />
             </div>
             
@@ -117,6 +148,7 @@ const Register = () => {
                 required
                 placeholder="••••••••"
                 className="register-input"
+                disabled={isLoading}
               />
             </div>
             
@@ -131,6 +163,7 @@ const Register = () => {
                 required
                 placeholder="••••••••"
                 className="register-input"
+                disabled={isLoading}
               />
             </div>
             

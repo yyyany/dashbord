@@ -1,115 +1,201 @@
 /**
- * Service de gestion des appels API
+ * Service pour gérer les appels API
  */
-
-// Détection automatique de l'URL de l'API en fonction de l'environnement
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:3000'
-  : 'https://dashbord-production.up.railway.app';
-
-/**
- * Options par défaut pour les requêtes fetch
- */
-const defaultOptions = {
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-  mode: 'cors',
-  credentials: 'omit',
-};
-
-/**
- * Gestionnaire d'erreurs API
- * @param {Response} response - Réponse fetch
- * @returns {Promise} Résolution ou rejet de la promesse
- */
-const handleResponse = async (response) => {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const errorMessage = errorData.message || `Erreur HTTP: ${response.status}`;
-    throw new Error(errorMessage);
+class ApiService {
+  constructor() {
+    // URL de base de l'API - détection automatique de l'environnement
+    this.baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:3000/api'
+      : 'https://dashbord-production.up.railway.app/api';
   }
-  return response.json();
-};
 
-/**
- * Service API pour les tâches
- */
-const tacheService = {
   /**
-   * Récupérer toutes les tâches
-   * @returns {Promise<Array>} Liste des tâches
+   * Configure les headers pour les requêtes
+   * @param {boolean} includeToken - Indique s'il faut inclure le token d'authentification
+   * @returns {Object} Headers pour la requête
    */
-  async getAllTaches() {
+  getHeaders(includeToken = false) {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    if (includeToken) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
+    return headers;
+  }
+
+  /**
+   * Enregistre un nouvel utilisateur
+   * @param {Object} userData - Données de l'utilisateur à enregistrer
+   * @returns {Promise<Object>} Réponse de l'API
+   */
+  async register(userData) {
     try {
-      const response = await fetch(`${API_URL}/api/taches`, {
-        method: 'GET',
-        ...defaultOptions,
+      const response = await fetch(`${this.baseUrl}/auth/register`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify(userData)
       });
-      return handleResponse(response);
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de l\'inscription');
+      }
+      
+      return data;
     } catch (error) {
-      console.error('Erreur lors de la récupération des tâches:', error);
+      console.error('Erreur d\'inscription:', error);
       throw error;
     }
-  },
+  }
 
   /**
-   * Créer une nouvelle tâche
+   * Connecte un utilisateur
+   * @param {Object} credentials - Identifiants de connexion
+   * @returns {Promise<Object>} Réponse de l'API avec token et données utilisateur
+   */
+  async login(credentials) {
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/login`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify(credentials)
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de la connexion');
+      }
+      
+      // Sauvegarder le token dans le localStorage
+      if (data.data && data.data.token) {
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userData', JSON.stringify(data.data.user));
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Erreur de connexion:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère le profil de l'utilisateur connecté
+   * @returns {Promise<Object>} Données du profil utilisateur
+   */
+  async getProfile() {
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/profile`, {
+        method: 'GET',
+        headers: this.getHeaders(true)
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de la récupération du profil');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Erreur de récupération du profil:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Déconnecte l'utilisateur
+   */
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userData');
+  }
+
+  /**
+   * Récupère toutes les tâches
+   * @returns {Promise<Array>} Liste des tâches
+   */
+  async getTaches() {
+    try {
+      const response = await fetch(`${this.baseUrl}/taches`, {
+        method: 'GET',
+        headers: this.getHeaders(true)
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de la récupération des tâches');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Erreur de récupération des tâches:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crée une nouvelle tâche
    * @param {Object} tacheData - Données de la tâche à créer
    * @returns {Promise<Object>} Tâche créée
    */
   async createTache(tacheData) {
     try {
-      const response = await fetch(`${API_URL}/api/taches`, {
+      const response = await fetch(`${this.baseUrl}/taches`, {
         method: 'POST',
-        ...defaultOptions,
-        body: JSON.stringify(tacheData),
+        headers: this.getHeaders(true),
+        body: JSON.stringify(tacheData)
       });
-      return handleResponse(response);
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de la création de la tâche');
+      }
+      
+      return data;
     } catch (error) {
-      console.error('Erreur lors de la création de la tâche:', error);
+      console.error('Erreur de création de tâche:', error);
       throw error;
     }
-  },
+  }
 
   /**
-   * Supprimer une tâche
-   * @param {string} id - Identifiant de la tâche
+   * Supprime une tâche
+   * @param {string} id - ID de la tâche à supprimer
    * @returns {Promise<Object>} Résultat de la suppression
    */
   async deleteTache(id) {
     try {
-      const response = await fetch(`${API_URL}/api/taches/${id}`, {
+      const response = await fetch(`${this.baseUrl}/taches/${id}`, {
         method: 'DELETE',
-        ...defaultOptions,
+        headers: this.getHeaders(true)
       });
-      return handleResponse(response);
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de la suppression de la tâche');
+      }
+      
+      return data;
     } catch (error) {
-      console.error('Erreur lors de la suppression de la tâche:', error);
+      console.error('Erreur de suppression de tâche:', error);
       throw error;
     }
-  },
+  }
+}
 
-  /**
-   * Mettre à jour une tâche
-   * @param {string} id - Identifiant de la tâche
-   * @param {Object} tacheData - Nouvelles données
-   * @returns {Promise<Object>} Tâche mise à jour
-   */
-  async updateTache(id, tacheData) {
-    try {
-      const response = await fetch(`${API_URL}/api/taches/${id}`, {
-        method: 'PUT',
-        ...defaultOptions,
-        body: JSON.stringify(tacheData),
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de la tâche:', error);
-      throw error;
-    }
-  },
-};
-
-export { tacheService }; 
+export default new ApiService(); 
