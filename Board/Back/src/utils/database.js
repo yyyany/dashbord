@@ -15,7 +15,7 @@ async function connectToDatabase() {
 
     // URL MongoDB - utilise variable d'environnement en production
     const mongoURI = process.env.MONGODB_URI || 
-        'mongodb+srv://skandy:1@cluster0.f0gatij.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+        'mongodb+srv://skandy:1@cluster0.f0gatij.mongodb.net/dashboard?retryWrites=true&w=majority&appName=Cluster0';
 
     try {
         const client = await mongoose.connect(mongoURI, {

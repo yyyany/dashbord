@@ -1,20 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import './Login.css';
+import apiService from '../services/api.service';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
+    // Vérifier si l'utilisateur a été redirigé depuis le dashboard
+    const params = new URLSearchParams(location.search);
+    const redirectReason = params.get('reason');
+    
+    if (redirectReason === 'auth_required') {
+      setError('Veuillez vous connecter pour accéder au tableau de bord');
+    }
+    
     // Animation lors du chargement de la page
     const container = document.querySelector('.login-container');
     if (container) {
       container.classList.add('active');
     }
-  }, []);
+  }, [location]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,13 +39,26 @@ const Login = () => {
     setIsLoading(true);
     setError('');
 
-    // Simuler une requête d'authentification (à remplacer par une vraie API plus tard)
-    setTimeout(() => {
-      // Pour l'instant, nous simulons une connexion réussie
+    try {
+      // Utiliser le service API pour se connecter
+      const response = await apiService.login({
+        email: credentials.email,
+        password: credentials.password
+      });
+
+      // Si la connexion réussit, naviguer vers le dashboard
+      if (response.success) {
+        navigate('/dashboard');
+      } else {
+        // Si la réponse est un succès mais que le backend indique une erreur
+        setError(response.message || 'Échec de connexion');
+      }
+    } catch (error) {
+      // Gérer les erreurs d'authentification
+      setError(error.message || 'Email ou mot de passe incorrect');
+    } finally {
       setIsLoading(false);
-      localStorage.setItem('isAuthenticated', 'true');
-      navigate('/dashboard');
-    }, 1500);
+    }
   };
 
   return (

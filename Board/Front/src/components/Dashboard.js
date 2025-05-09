@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiService from '../services/api.service';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -127,6 +128,15 @@ const Dashboard = () => {
   // Changer l'onglet actif
   const changerTab = (tab) => {
     setTabActif(tab);
+  };
+
+  // Si vous n'avez pas déjà une fonction de déconnexion, ajoutez-la
+  const handleLogout = () => {
+    // Utiliser la fonction de déconnexion du service API
+    apiService.logout();
+    
+    // Rediriger vers la page de connexion
+    navigate('/login');
   };
 
   return (

@@ -14,7 +14,7 @@ function App() {
   // Composant pour les routes protégées
   const ProtectedRoute = ({ children }) => {
     if (!isAuthenticated()) {
-      return <Navigate to="/login" />;
+      return <Navigate to="/login?reason=auth_required" />;
     }
     return children;
   };
